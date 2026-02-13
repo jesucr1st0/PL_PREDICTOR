@@ -68,9 +68,20 @@ teams = {
     "Sunderland": "assets/sunderland.png",
 }
 
-# -------- SESSION STATE --------
-if "selected_team" not in st.session_state:
-    st.session_state.selected_team = None
+
+if "home_team" not in st.session_state:
+    st.session_state.home_team = None
+
+if "away_team" not in st.session_state:
+    st.session_state.away_team = None
+
+if "selection_mode" not in st.session_state:
+    st.session_state.selection_mode = "home"  # primero local
+
+if st.session_state.selection_mode == "home":
+    st.info("Selecciona el equipo LOCAL")
+else:
+    st.info("Selecciona el equipo VISITANTE")
 
 # -------- GRID 5x4 --------
 cols_per_row = 5
@@ -82,11 +93,22 @@ for i in range(0, len(teams_list), cols_per_row):
         with col:
             img_base64 = get_base64_image(logo)
 
-            selected_class = "selected" if st.session_state.selected_team == team else ""
+            selected_class = ""
+
+            if team == st.session_state.home_team or team == st.session_state.away_team:
+                selected_class = "selected"
 
             # Botón invisible
+
             if st.button(team, key=f"btn_{team}"):
-                st.session_state.selected_team = team
+
+               if st.session_state.selection_mode == "home":
+                   st.session_state.home_team = team
+                   st.session_state.selection_mode = "away"
+
+               elif st.session_state.selection_mode == "away":
+                  if team != st.session_state.home_team:
+                     st.session_state.away_team = team
 
 
             # CSS para ocultar botón
@@ -111,15 +133,29 @@ for i in range(0, len(teams_list), cols_per_row):
                 unsafe_allow_html=True
             )
 
-# -------- RESULTADO --------
-if st.session_state.selected_team:
-    st.success(f"Equipo seleccionado: {st.session_state.selected_team}")
+if st.session_state.home_team and st.session_state.away_team:
 
-# -------- CAPTURAR CLICK --------
-query_params = st.query_params
-if "team" in query_params:
-    st.session_state.selected_team = query_params["team"]
+    col1, col2, col3 = st.columns([2,1,2])
 
-# -------- RESULTADO --------
-if st.session_state.selected_team:
-    st.success(f"Equipo seleccionado: {st.session_state.selected_team}") 
+    with col1:
+        st.markdown(f"<h3 style='text-align:center'>{st.session_state.home_team}</h3>", unsafe_allow_html=True)
+
+    with col2:
+        st.markdown("<h2 style='text-align:center'>VS</h2>", unsafe_allow_html=True)
+
+    with col3:
+        st.markdown(f"<h3 style='text-align:center'>{st.session_state.away_team}</h3>", unsafe_allow_html=True)
+
+
+st.markdown("### 📅 Selecciona la fecha del partido")
+
+match_date = st.date_input("Fecha del partido")
+
+if st.button("🔮 Predecir partido"):
+    st.success(f"Predicción: {st.session_state.home_team} vs {st.session_state.away_team} el {match_date}")
+    
+if st.button("🔄 Reiniciar selección"):
+    st.session_state.home_team = None
+    st.session_state.away_team = None
+    st.session_state.selection_mode = "home"
+
