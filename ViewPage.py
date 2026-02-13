@@ -84,23 +84,32 @@ for i in range(0, len(teams_list), cols_per_row):
 
             selected_class = "selected" if st.session_state.selected_team == team else ""
 
-            # Imagen clickeable real
-            clicked = st.markdown(
+            # Botón invisible
+            if st.button(team, key=f"btn_{team}"):
+                st.session_state.selected_team = team
+
+
+            # CSS para ocultar botón
+            st.markdown("""
+            <style>
+            div[data-testid="stButton"] > button {
+                display: none;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+
+            # Imagen encima que activa el botón
+            st.markdown(
                 f"""
                 <div class="team-card {selected_class}">
-                    <a href="?team={team}">
+                    <label for="btn_{team}">
                         <img src="data:image/png;base64,{img_base64}" width="130">
-                    </a>
+                    </label>
                     <p style="color:white;">{team}</p>
                 </div>
                 """,
                 unsafe_allow_html=True
             )
-
-# -------- CAPTURAR CLICK --------
-query_params = st.query_params
-if "team" in query_params:
-    st.session_state.selected_team = query_params["team"]
 
 # -------- RESULTADO --------
 if st.session_state.selected_team:
