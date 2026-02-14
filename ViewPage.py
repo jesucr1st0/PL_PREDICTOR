@@ -2,6 +2,7 @@ import streamlit as st
 import base64
 
 st.set_page_config(layout="wide")
+
 def get_base64_image(path):
     with open(path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode()
@@ -21,7 +22,7 @@ h1 {
 
 .team-card {
     text-align: center;
-    padding: 15px;
+    padding: 10px;
 }
 
 .team-card img {
@@ -39,8 +40,21 @@ h1 {
     box-shadow: 0px 0px 35px rgba(0,255,120,1);
     transform: scale(1.1);
 }
+            
+/* 🔥 CENTRADO REAL DEL BOTÓN */
+div[data-testid="stButton"] {
+    text-align: center;
+}
+
+div[data-testid="stButton"] > button {
+    width: 130px;        /* mismo ancho que la imagen */
+    padding: 10px;
+    margin: 0 auto;      
+}
 </style>
 """, unsafe_allow_html=True)
+
+
 
 st.markdown("<h1>⚽ Premier League Predictor</h1>", unsafe_allow_html=True)
 
@@ -49,8 +63,8 @@ teams = {
     "Arsenal": "assets/arsenal.png",
     "Chelsea": "assets/chelsea.png",
     "Liverpool": "assets/liverpool.png",
-    "Manchester City": "assets/manchestercity.png",
-    "Manchester United": "assets/manchesterunited.png",
+    "Man. City": "assets/manchestercity.png",
+    "Man. United": "assets/manchesterunited.png",
     "Tottenham": "assets/tottenham.png",
     "Newcastle": "assets/newcastle.png",
     "Brighton": "assets/brighton.png",
@@ -63,12 +77,12 @@ teams = {
     "Bournemouth": "assets/bournemouth.png",
     "Wolves": "assets/wolves.png",
     "Burnley": "assets/burnley.png",
-    "Nottingham Forest": "assets/nottingham_forest.png",
+    "Nottingham": "assets/nottingham_forest.png",
     "Leeds United": "assets/leeds.png",
     "Sunderland": "assets/sunderland.png",
 }
 
-
+# -------- SESSION STATE --------
 if "home_team" not in st.session_state:
     st.session_state.home_team = None
 
@@ -76,13 +90,35 @@ if "away_team" not in st.session_state:
     st.session_state.away_team = None
 
 if "selection_mode" not in st.session_state:
-    st.session_state.selection_mode = "home"  # primero local
+    st.session_state.selection_mode = "home"
 
+# -------- MENSAJE SUPERIOR --------
 if st.session_state.selection_mode == "home":
-    st.info("Selecciona el equipo LOCAL")
+    msg = "Selecciona el equipo LOCAL"
+elif st.session_state.selection_mode == "away":
+    msg = "Selecciona el equipo VISITANTE"
 else:
-    st.info("Selecciona el equipo VISITANTE")
+    msg = "Equipos seleccionados"
 
+st.markdown(
+    f"""
+    <div style="
+        text-align:center;
+        background:#0f2f1f;
+        border:2px solid #00ff88;
+        color:#00ff88;
+        padding:15px;
+        border-radius:15px;
+        width:400px;
+        margin:0 auto 30px auto;
+        font-weight:bold;
+        font-size:18px;
+    ">
+        {msg}
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 # -------- GRID 5x4 --------
 cols_per_row = 5
 teams_list = list(teams.items())
@@ -93,69 +129,91 @@ for i in range(0, len(teams_list), cols_per_row):
         with col:
             img_base64 = get_base64_image(logo)
 
-            selected_class = ""
 
+            selected_class = ""
             if team == st.session_state.home_team or team == st.session_state.away_team:
                 selected_class = "selected"
 
-            # Botón invisible
+            # BOTÓN REAL (visible)
+            if st.button(team, key=f"btn_{team}",  use_container_width=True):
 
-            if st.button(team, key=f"btn_{team}"):
+                if st.session_state.selection_mode == "home":
+                    st.session_state.home_team = team
+                    st.session_state.selection_mode = "away"
 
-               if st.session_state.selection_mode == "home":
-                   st.session_state.home_team = team
-                   st.session_state.selection_mode = "away"
+                elif st.session_state.selection_mode == "away":
+                    if team != st.session_state.home_team:
+                        st.session_state.away_team = team
+                        st.session_state.selection_mode = "done"
 
-               elif st.session_state.selection_mode == "away":
-                  if team != st.session_state.home_team:
-                     st.session_state.away_team = team
-
-
-            # CSS para ocultar botón
-            st.markdown("""
-            <style>
-            div[data-testid="stButton"] > button {
-                display: none;
-            }
-            </style>
-            """, unsafe_allow_html=True)
-
-            # Imagen encima que activa el botón
+            # IMAGEN
             st.markdown(
                 f"""
                 <div class="team-card {selected_class}">
-                    <label for="btn_{team}">
-                        <img src="data:image/png;base64,{img_base64}" width="130">
-                    </label>
-                    <p style="color:white;">{team}</p>
+                    <img src="data:image/png;base64,{img_base64}" width="130">
                 </div>
                 """,
                 unsafe_allow_html=True
             )
 
+# -------- MOSTRAR VS --------
 if st.session_state.home_team and st.session_state.away_team:
 
+    st.markdown("---")
+
     col1, col2, col3 = st.columns([2,1,2])
+    home_logo = get_base64_image(teams[st.session_state.home_team])
+    away_logo = get_base64_image(teams[st.session_state.away_team])
 
     with col1:
-        st.markdown(f"<h3 style='text-align:center'>{st.session_state.home_team}</h3>", unsafe_allow_html=True)
+     if st.session_state.home_team:
+        st.markdown(
+             f"""
+             <div style="text-align:center">
+                 <img src="data:image/png;base64,{home_logo}" width="130">
+                 <h3>{st.session_state.home_team}</h3>
+             </div>
+             """,
+             unsafe_allow_html=True
+        )
 
     with col2:
-        st.markdown("<h2 style='text-align:center'>VS</h2>", unsafe_allow_html=True)
+     st.markdown(
+        "<h2 style='text-align:center'>VS</h2>",
+        unsafe_allow_html=True
+     )
 
     with col3:
-        st.markdown(f"<h3 style='text-align:center'>{st.session_state.away_team}</h3>", unsafe_allow_html=True)
-
-
-st.markdown("### 📅 Selecciona la fecha del partido")
-
-match_date = st.date_input("Fecha del partido")
-
-if st.button("🔮 Predecir partido"):
-    st.success(f"Predicción: {st.session_state.home_team} vs {st.session_state.away_team} el {match_date}")
+     if st.session_state.away_team:
+        st.markdown(
+             f"""
+             <div style="text-align:center">
+                 <img src="data:image/png;base64,{away_logo}" width="130">
+                 <h3>{st.session_state.away_team}</h3>
+             </div>
+             """,
+             unsafe_allow_html=True
+        )
     
-if st.button("🔄 Reiniciar selección"):
-    st.session_state.home_team = None
-    st.session_state.away_team = None
-    st.session_state.selection_mode = "home"
 
+    with col2:
+
+     st.markdown("###  Selecciona la fecha ")
+
+     match_date = st.date_input("Fecha del partido")
+
+     st.markdown("<br>", unsafe_allow_html=True)
+
+     if st.button("🔮 Predecir ", use_container_width=True):
+        st.success(
+            f"Predicción: {st.session_state.home_team} vs "
+            f"{st.session_state.away_team} el {match_date}"
+        )
+
+     st.markdown("<br>", unsafe_allow_html=True)
+
+     if st.button("🔄 Reiniciar ", use_container_width=True):
+        st.session_state.home_team = None
+        st.session_state.away_team = None
+        st.session_state.selection_mode = "home"
+        st.rerun()
