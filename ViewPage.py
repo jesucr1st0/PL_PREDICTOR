@@ -8,10 +8,9 @@ def get_base64_image(path):
     with open(path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode()
     
-model = joblib.load("model.pkl")
-team_encoder = joblib.load("team_encoder.pkl")
-result_encoder = joblib.load("result_encoder.pkl")
-feature_cols = joblib.load("feature_cols.pkl")
+model = joblib.load("model/model.pkl")
+team_encoder = joblib.load("model/team_encoder.pkl")
+result_encoder = joblib.load("model/result_encoder.pkl")
 
 # -------- CSS PRO --------
 st.markdown("""
