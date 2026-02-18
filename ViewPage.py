@@ -1,6 +1,18 @@
 import streamlit as st
 import base64
 import joblib
+import pandas as pd
+from FunctionsModel import predict_match
+
+# Cargar CSV
+df1 = pd.read_csv("data/pl_23_24.csv")
+df2 = pd.read_csv("data/pl_24_25.csv")
+df3 = pd.read_csv("data/pl_25_26.csv")
+
+df = pd.concat([df1, df2, df3], ignore_index=True)
+
+# Convertir fecha
+df["Date"] = pd.to_datetime(df["Date"], dayfirst=True)
 
 st.set_page_config(layout="wide")
 
@@ -210,10 +222,14 @@ if st.session_state.home_team and st.session_state.away_team:
      st.markdown("<br>", unsafe_allow_html=True)
 
      if st.button("🔮 Predecir ", use_container_width=True):
-        st.success(
-            f"Predicción: {st.session_state.home_team} vs "
-            f"{st.session_state.away_team} el {match_date}"
-        )
+         result = predict_match(
+            st.session_state.home_team,
+            st.session_state.away_team,
+            st.session_state.match_date,
+            df
+         )
+
+         st.success(f"Predicción: {result}")
 
      st.markdown("<br>", unsafe_allow_html=True)
 
