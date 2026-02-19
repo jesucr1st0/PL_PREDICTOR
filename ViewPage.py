@@ -5,14 +5,12 @@ import pandas as pd
 from FunctionsModel import predict_match
 
 # Cargar CSV
-df1 = pd.read_csv("data/pl_23_24.csv")
-df2 = pd.read_csv("data/pl_24_25.csv")
-df3 = pd.read_csv("data/pl_25_26.csv")
+df = pd.read_csv("data/clean_matches.csv")
 
-df = pd.concat([df1, df2, df3], ignore_index=True)
+
 
 # Convertir fecha
-df["Date"] = pd.to_datetime(df["Date"], dayfirst=True)
+df["Date"] = pd.to_datetime(df["Date"], format="mixed", dayfirst=True)
 
 st.set_page_config(layout="wide")
 
@@ -80,8 +78,8 @@ teams = {
     "Arsenal": "assets/arsenal.png",
     "Chelsea": "assets/chelsea.png",
     "Liverpool": "assets/liverpool.png",
-    "Man. City": "assets/manchestercity.png",
-    "Man. United": "assets/manchesterunited.png",
+    "Man City": "assets/manchestercity.png",
+    "Man United": "assets/manchesterunited.png",
     "Tottenham": "assets/tottenham.png",
     "Newcastle": "assets/newcastle.png",
     "Brighton": "assets/brighton.png",
@@ -94,8 +92,8 @@ teams = {
     "Bournemouth": "assets/bournemouth.png",
     "Wolves": "assets/wolves.png",
     "Burnley": "assets/burnley.png",
-    "Nottingham": "assets/nottingham_forest.png",
-    "Leeds United": "assets/leeds.png",
+    "Nott'm Forest": "assets/nottingham_forest.png",
+    "Leeds": "assets/leeds.png",
     "Sunderland": "assets/sunderland.png",
 }
 
@@ -108,6 +106,8 @@ if "away_team" not in st.session_state:
 
 if "selection_mode" not in st.session_state:
     st.session_state.selection_mode = "home"
+
+
 
 # -------- MENSAJE SUPERIOR --------
 if st.session_state.selection_mode == "home":
@@ -217,23 +217,34 @@ if st.session_state.home_team and st.session_state.away_team:
 
      st.markdown("###  Selecciona la fecha ")
 
-     match_date = st.date_input("Fecha del partido")
+     st.session_state.match_date = st.date_input("Fecha del partido")
 
      st.markdown("<br>", unsafe_allow_html=True)
 
-     if st.button("🔮 Predecir ", use_container_width=True):
-         result = predict_match(
+     if st.button(" Predecir ", use_container_width=True):
+        result = predict_match(
             st.session_state.home_team,
             st.session_state.away_team,
             st.session_state.match_date,
             df
-         )
+        )
 
-         st.success(f"Predicción: {result}")
+        st.success(
+            f"""
+            RESULTADO SIMULADO
+
+            {st.session_state.home_team} {result["home_goals"]} - {result["away_goals"]} {st.session_state.away_team}
+
+            Probabilidades:
+            Local: {result['probs'][0]:.2%}
+            Empate: {result['probs'][1]:.2%}
+            Visitante: {result['probs'][2]:.2%}
+            """
+        )
 
      st.markdown("<br>", unsafe_allow_html=True)
 
-     if st.button("🔄 Reiniciar ", use_container_width=True):
+     if st.button(" Reiniciar ", use_container_width=True):
         st.session_state.home_team = None
         st.session_state.away_team = None
         st.session_state.selection_mode = "home"

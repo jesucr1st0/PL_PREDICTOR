@@ -1,5 +1,6 @@
 import joblib
 import pandas as pd
+import numpy as np
 
 model = joblib.load("model/model.pkl")
 team_encoder = joblib.load("model/team_encoder.pkl")
@@ -76,17 +77,60 @@ def predict_match(home_team, away_team, date, df):
 
     input_df = pd.DataFrame([input_dict])
 
-    input_df = input_df[model.feature_names_in]
+    columns_order = [
+    "HomeTeam_enc",
+    "AwayTeam_enc",
+    "HS",
+    "AS",
+    "HST",
+    "AST",
+    "HC",
+    "AC",
+    "HY",
+    "AY",
+    "HR",
+    "AR",
+    "AvgH",
+    "AvgD",
+    "AvgA"
+    ]
+
+    input_df = input_df[columns_order]
 
     pred = model.predict(input_df)[0]
 
     probs = model.predict_proba(input_df)[0]
+
+    # Intensidad base promedio Premier League (~1.4 goles por equipo)
+    base_goal_rate = 1.4
+
+    home_lambda = base_goal_rate + probs[result_encoder.transform(['H'])[0]]
+    away_lambda = base_goal_rate + probs[result_encoder.transform(['A'])[0]]
+
+    home_goals = np.random.poisson(home_lambda)
+    away_goals = np.random.poisson(away_lambda)
+
+    result_label = result_encoder.inverse_transform([pred])[0]
+
+    if result_label == "H" and home_goals <= away_goals:
+      home_goals += 1
+
+    elif result_label == "A" and away_goals <= home_goals:
+      away_goals += 1
+
+    elif result_label == "D":
+      away_goals = home_goals
 
     print("Probabilidades:")
     print(f"Home win: {probs[ result_encoder.transform(['H'])[0] ]:.3f}")
     print(f"Draw: {probs[ result_encoder.transform(['D'])[0] ]:.3f}")
     print(f"Away win: {probs[ result_encoder.transform(['A'])[0] ]:.3f}")
 
-    return result_encoder.inverse_transform([pred])[0]
+    return {
+        "result": result_label,
+        "home_goals": home_goals,
+        "away_goals": away_goals,
+        "probs": probs
+    }
 
 
