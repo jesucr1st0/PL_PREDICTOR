@@ -95,6 +95,10 @@ teams = {
     "Nott'm Forest": "assets/nottingham_forest.png",
     "Leeds": "assets/leeds.png",
     "Sunderland": "assets/sunderland.png",
+    "Sheffield United": "assets/sheffield.png",
+    "Southampton": "assets/southampton.png",
+    "Luton": "assets/luton.png",
+    "Leicester": "assets/leicester.png",
 }
 
 # -------- SESSION STATE --------

@@ -101,6 +101,14 @@ def predict_match(home_team, away_team, date, df):
 
     probs = model.predict_proba(input_df)[0]
 
+    prob_dict = dict(zip(model.classes_, model.predict_proba(input_df)[0]))
+
+    ordered_probs = [
+      prob_dict[2],
+      prob_dict[1],
+      prob_dict[0]
+    ] 
+
     # Intensidad base promedio Premier League (~1.4 goles por equipo)
     base_goal_rate = 1.4
 
@@ -130,7 +138,7 @@ def predict_match(home_team, away_team, date, df):
         "result": result_label,
         "home_goals": home_goals,
         "away_goals": away_goals,
-        "probs": probs
+        "probs": ordered_probs
     }
 
 
