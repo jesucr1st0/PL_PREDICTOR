@@ -129,11 +129,6 @@ def predict_match(home_team, away_team, date, df):
     elif result_label == "D":
       away_goals = home_goals
 
-    print("Probabilidades:")
-    print(f"Home win: {probs[ result_encoder.transform(['H'])[0] ]:.3f}")
-    print(f"Draw: {probs[ result_encoder.transform(['D'])[0] ]:.3f}")
-    print(f"Away win: {probs[ result_encoder.transform(['A'])[0] ]:.3f}")
-
     return {
         "result": result_label,
         "home_goals": home_goals,

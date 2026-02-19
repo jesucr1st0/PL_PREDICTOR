@@ -42,18 +42,12 @@ h1 {
 
 .team-card img {
     border-radius: 20px;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.team-card img:hover {
-    transform: scale(1.1);
-    box-shadow: 0px 0px 25px rgba(0,255,120,0.9);
-    cursor: pointer;
+    transition: box-shadow 0.25s ease;
 }
 
 .selected img {
     box-shadow: 0px 0px 35px rgba(0,255,120,1);
-    transform: scale(1.1);
+    border: 2px solid #00ff88;
 }
             
 /* 🔥 CENTRADO REAL DEL BOTÓN */
@@ -149,25 +143,9 @@ for i in range(0, len(teams_list), cols_per_row):
     for col, (team, logo) in zip(cols, teams_list[i:i+cols_per_row]):
         with col:
             img_base64 = get_base64_image(logo)
+            selected_class = "selected" if team in [st.session_state.home_team, st.session_state.away_team] else ""
 
-
-            selected_class = ""
-            if team == st.session_state.home_team or team == st.session_state.away_team:
-                selected_class = "selected"
-
-            # BOTÓN REAL (visible)
-            if st.button(team, key=f"btn_{team}",  use_container_width=True):
-
-                if st.session_state.selection_mode == "home":
-                    st.session_state.home_team = team
-                    st.session_state.selection_mode = "away"
-
-                elif st.session_state.selection_mode == "away":
-                    if team != st.session_state.home_team:
-                        st.session_state.away_team = team
-                        st.session_state.selection_mode = "done"
-
-            # IMAGEN
+            # 1. Mostramos la imagen con el estilo CSS que ya tienes
             st.markdown(
                 f"""
                 <div class="team-card {selected_class}">
@@ -176,6 +154,17 @@ for i in range(0, len(teams_list), cols_per_row):
                 """,
                 unsafe_allow_html=True
             )
+
+            # 2. El botón justo debajo (es el que captura el evento)
+            if st.button(f"Seleccionar", key=f"btn_{team}", use_container_width=True):
+                if st.session_state.selection_mode == "home":
+                    st.session_state.home_team = team
+                    st.session_state.selection_mode = "away"
+                    st.rerun()
+                elif st.session_state.selection_mode == "away" and team != st.session_state.home_team:
+                    st.session_state.away_team = team
+                    st.session_state.selection_mode = "done"
+                    st.rerun()
 
 # -------- MOSTRAR VS --------
 if st.session_state.home_team and st.session_state.away_team:
