@@ -156,7 +156,7 @@ for i in range(0, len(teams_list), cols_per_row):
             )
 
             # 2. El botón justo debajo (es el que captura el evento)
-            if st.button(f"Seleccionar", key=f"btn_{team}", use_container_width=True):
+            if st.button(f"{team}", key=f"btn_{team}", use_container_width=True):
                 if st.session_state.selection_mode == "home":
                     st.session_state.home_team = team
                     st.session_state.selection_mode = "away"
