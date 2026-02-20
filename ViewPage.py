@@ -222,16 +222,17 @@ if st.session_state.home_team and st.session_state.away_team:
             df
         )
 
-        st.success(
+        st.markdown(
             f"""
-            RESULTADO SIMULADO
+            ### RESULTADO SIMULADO
 
-            {st.session_state.home_team} {result["home_goals"]} - {result["away_goals"]} {st.session_state.away_team}
+            **{st.session_state.home_team} {result["home_goals"]} - {result["away_goals"]} {st.session_state.away_team}**
 
-            Probabilidades:
-            Local: {result['probs'][0]:.2%}
-            Empate: {result['probs'][1]:.2%}
-            Visitante: {result['probs'][2]:.2%}
+            **Probabilidades:**
+    
+            - Local: {result['probs'][0]:.2%}
+            - Empate: {result['probs'][1]:.2%}
+            - Visitante: {result['probs'][2]:.2%}
             """
         )
 

@@ -109,7 +109,7 @@ def predict_match(home_team, away_team, date, df):
       prob_dict[0]
     ] 
 
-    # Intensidad base promedio Premier League (~1.4 goles por equipo)
+    # Intensidad base promedio Premier League (1.4 goles por equipo)
     base_goal_rate = 1.4
 
     home_lambda = base_goal_rate + probs[result_encoder.transform(['H'])[0]]
